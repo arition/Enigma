@@ -8,6 +8,8 @@ For the architecture, we plan to use a server-client model. Server only stores t
 
 This week we mainly focus on the the design of the project.
 
+## Client communication graph
+
 ```
                         +-------------------+
                         |                   |
@@ -83,3 +85,7 @@ This week we mainly focus on the the design of the project.
 +------------------+                              +--------------------+
 
 ```
+
+## Trello link
+
+https://trello.com/b/MFIJVob1/ecs153-project
