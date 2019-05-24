@@ -9,6 +9,7 @@ namespace EnigmaLib.Model
         [Key] public int EncryptedDataId { get; set; }
 
         public byte[] AESEncryptedData { get; set; }
-        public byte[] RSAEncryptedAESKey { get; set; }
+
+        [Required] public byte[] RSAEncryptedAESKey { get; set; }
     }
 }

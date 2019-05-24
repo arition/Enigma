@@ -11,7 +11,7 @@ namespace EnigmaLib.Model
         private RSAParameters? _publicKey;
         [Key] public int UserId { get; set; }
 
-        public string PublicKeyString { get; set; }
+        [Required] public string PublicKeyString { get; set; }
 
         [NotMapped]
         public RSAParameters PublicKey
@@ -29,6 +29,6 @@ namespace EnigmaLib.Model
             }
         }
 
-        public string Username { get; set; }
+        [Required] public string Username { get; set; }
     }
 }
