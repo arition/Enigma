@@ -14,7 +14,7 @@ namespace EnigmaServer.Migrations
                     EncryptedDataId = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     AESEncryptedData = table.Column<byte[]>(nullable: true),
-                    RSAEncryptedAESKey = table.Column<byte[]>(nullable: true)
+                    RSAEncryptedAESKey = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -39,8 +39,8 @@ namespace EnigmaServer.Migrations
                 {
                     UserId = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    PublicKeyString = table.Column<string>(nullable: true),
-                    Username = table.Column<string>(nullable: true),
+                    PublicKeyString = table.Column<string>(nullable: false),
+                    Username = table.Column<string>(nullable: false),
                     GroupId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -63,7 +63,7 @@ namespace EnigmaServer.Migrations
                     FromUserId = table.Column<int>(nullable: false),
                     ToUserId = table.Column<int>(nullable: false),
                     GroupId = table.Column<int>(nullable: false),
-                    EncryptedDataId = table.Column<int>(nullable: true)
+                    EncryptedDataId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -73,7 +73,7 @@ namespace EnigmaServer.Migrations
                         column: x => x.EncryptedDataId,
                         principalTable: "EncryptedData",
                         principalColumn: "EncryptedDataId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Message_User_FromUserId",
                         column: x => x.FromUserId,

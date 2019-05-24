@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EnigmaServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20190524084300_InitialCreate")]
+    [Migration("20190524172509_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,8 @@ namespace EnigmaServer.Migrations
 
                     b.Property<byte[]>("AESEncryptedData");
 
-                    b.Property<byte[]>("RSAEncryptedAESKey");
+                    b.Property<byte[]>("RSAEncryptedAESKey")
+                        .IsRequired();
 
                     b.HasKey("EncryptedDataId");
 
@@ -47,7 +48,7 @@ namespace EnigmaServer.Migrations
                     b.Property<int>("MessageId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("EncryptedDataId");
+                    b.Property<int>("EncryptedDataId");
 
                     b.Property<int>("FromUserId");
 
@@ -75,9 +76,11 @@ namespace EnigmaServer.Migrations
 
                     b.Property<int?>("GroupId");
 
-                    b.Property<string>("PublicKeyString");
+                    b.Property<string>("PublicKeyString")
+                        .IsRequired();
 
-                    b.Property<string>("Username");
+                    b.Property<string>("Username")
+                        .IsRequired();
 
                     b.HasKey("UserId");
 
@@ -90,7 +93,8 @@ namespace EnigmaServer.Migrations
                 {
                     b.HasOne("EnigmaLib.Model.EncryptedData", "EncryptedData")
                         .WithMany()
-                        .HasForeignKey("EncryptedDataId");
+                        .HasForeignKey("EncryptedDataId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("EnigmaLib.Model.User", "FromUser")
                         .WithMany()
