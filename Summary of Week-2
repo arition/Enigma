@@ -1,2 +1,22 @@
 Week 2 Report
 
+New fetures:
+1. Complete the encryption and decryption method.
+2. Setup the server and database.
+3. Add rest API for server, haven't tested yet.
+
+Summary Report:
+The encryption and decrption function can be found in EnigmaLib folder. Small 
+changes or modifications may apply in future if needed.(We use RSA to encrpt 
+the AES key and we use AES-256 to encrpt the message.)
+
+EnigmaServer folder contains the database(user, group, message, etc.) and the
+server we will use for our chat program. New fetures are still being added constantly,
+will have more in future.
+
+EnigmaTest is what we use for testing.(Encrption test, decrption test, etc.)
+
+*EnigmaClient is still undergoing, we will mainly focus on this part in our next phase.
+
+Our project will focus on the direction of security. Our main purpose is to build a 
+secure chat program. (trying to reach perfect secrecy)
