@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
@@ -29,6 +30,16 @@ namespace EnigmaLib.Model
             }
         }
 
-        [Required] public string Username { get; set; }
+        [Required] [MaxLength(20)] public string Username { get; set; }
+
+        /// <summary>
+        ///     For EF Database
+        /// </summary>
+        public virtual List<GroupUser> GroupUsers { get; set; }
+
+        public override string ToString()
+        {
+            return $"Username: {Username}\nPublicKey: {(PublicKeyString != null ? "True" : "False")}";
+        }
     }
 }

@@ -36,9 +36,49 @@ namespace EnigmaServer.Migrations
                     b.Property<int>("GroupId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("GroupName")
+                        .IsRequired();
+
                     b.HasKey("GroupId");
 
                     b.ToTable("Group");
+                });
+
+            modelBuilder.Entity("EnigmaLib.Model.GroupInviteLink", b =>
+                {
+                    b.Property<int>("GroupInviteLinkId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Expires");
+
+                    b.Property<int>("GroupId");
+
+                    b.Property<string>("InviteCode")
+                        .IsRequired();
+
+                    b.HasKey("GroupInviteLinkId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupInviteLink");
+                });
+
+            modelBuilder.Entity("EnigmaLib.Model.GroupUser", b =>
+                {
+                    b.Property<int>("GroupUserId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("GroupId");
+
+                    b.Property<int>("UserId");
+
+                    b.HasKey("GroupUserId");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupUser");
                 });
 
             modelBuilder.Entity("EnigmaLib.Model.Message", b =>
@@ -72,8 +112,6 @@ namespace EnigmaServer.Migrations
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("GroupId");
-
                     b.Property<string>("PublicKeyString")
                         .IsRequired();
 
@@ -82,9 +120,28 @@ namespace EnigmaServer.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("GroupId");
-
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("EnigmaLib.Model.GroupInviteLink", b =>
+                {
+                    b.HasOne("EnigmaLib.Model.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("EnigmaLib.Model.GroupUser", b =>
+                {
+                    b.HasOne("EnigmaLib.Model.Group", "Group")
+                        .WithMany("GroupUsers")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("EnigmaLib.Model.User", "User")
+                        .WithMany("GroupUsers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("EnigmaLib.Model.Message", b =>
@@ -108,13 +165,6 @@ namespace EnigmaServer.Migrations
                         .WithMany()
                         .HasForeignKey("ToUserId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("EnigmaLib.Model.User", b =>
-                {
-                    b.HasOne("EnigmaLib.Model.Group")
-                        .WithMany("Users")
-                        .HasForeignKey("GroupId");
                 });
 #pragma warning restore 612, 618
         }

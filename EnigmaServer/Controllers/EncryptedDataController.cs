@@ -2,10 +2,12 @@
 using System.Threading.Tasks;
 using EnigmaLib.Model;
 using EnigmaServer.Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnigmaServer.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class EncryptedDataController : ControllerBase

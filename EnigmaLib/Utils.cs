@@ -1,5 +1,8 @@
 ﻿using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace EnigmaLib
 {
@@ -33,6 +36,17 @@ namespace EnigmaLib
                 return false;
 
             return !a.Where((t, i) => t != b[i]).Any();
+        }
+
+        public static RSAParameters ToPublicKey(this RSAParameters privateKey)
+        {
+            return new RSAParameters {Exponent = privateKey.Exponent, Modulus = privateKey.Modulus};
+        }
+
+        public static async Task<T> ReadAsAsync<T>(this HttpContent content)
+        {
+            var json = await content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 }

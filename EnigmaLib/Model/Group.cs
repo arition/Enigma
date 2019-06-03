@@ -9,6 +9,9 @@ namespace EnigmaLib.Model
     {
         [Key] public int GroupId { get; set; }
 
-        public List<User> Users { get; set; }
+        public virtual List<GroupUser> GroupUsers { get; set; }
+
+        [Required]
+        public string GroupName { get; set; }
     }
 }
