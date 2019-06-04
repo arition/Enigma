@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using EnigmaLib;
 using EnigmaLib.Model;
 
 namespace EnigmaClientCli
@@ -10,11 +11,13 @@ namespace EnigmaClientCli
     public class Client
     {
         public UserInfo Me { get; set; }
+        public List<GroupInfo> GroupInfo { get; set; } = new List<GroupInfo>();
 
         public async void Run()
         {
             Console.WriteLine("Enigma Cli 1.0");
             Console.WriteLine("type 'help' to get all usable commands");
+            await InitGroupAsync();
             await Loop();
         }
 
@@ -25,7 +28,7 @@ namespace EnigmaClientCli
                 Console.Write("> ");
                 var input = Console.ReadLine();
                 await ParseCommandsAsync(input);
-                Console.Write("----------------------");
+                Console.WriteLine("----------------------");
             }
         }
 
@@ -40,19 +43,25 @@ namespace EnigmaClientCli
                     case "g":
                     case "group":
                         if (commandList.Count == 1)
-                        {
                             await ListGroupAsync();
-                        }
                         else
                             switch (commandList[1])
                             {
+                                case "info":
+                                    if (commandList.Count != 3)
+                                    {
+                                        Console.WriteLine("Invalid Argument");
+                                        return;
+                                    }
+                                    var groupNo = int.Parse(commandList[2]);
+                                    await GetGroupAsync(groupNo);
+                                    break;
                                 case "enter":
                                     if (commandList.Count != 4)
                                     {
                                         Console.WriteLine("Invalid Argument");
                                         return;
                                     }
-
                                     var inviteId = int.Parse(commandList[2]);
                                     await EnterGroupAsync(inviteId, commandList[3]);
                                     break;
@@ -75,6 +84,9 @@ namespace EnigmaClientCli
                                     break;
                             }
                         break;
+                    default:
+                        Console.WriteLine("Unknown operation.");
+                        break;
                 }
             }
             catch (Exception e)
@@ -83,17 +95,39 @@ namespace EnigmaClientCli
             }
         }
 
-        private async Task ListGroupAsync()
+        private async Task InitMeAsync()
         {
-            var me = await Global.APIBase.CreateUserAPI().GetMeAsync();
+            Me = new UserInfo(await Global.APIBase.CreateUserAPI().GetMeAsync());
+            Me.DecryptHelper = Me.DecryptHelper ?? new DecryptHelper(Global.APIBase.PrivateKey);
+        }
+
+        private async Task InitGroupAsync()
+        {
+            await InitMeAsync();
             var groupAPI = Global.APIBase.CreateGroupAPI();
 
-            foreach (var groupI in me.GroupUsers.OrderBy(t => t.GroupId)
-                .Select((t, index) => new {t.GroupId, Index = index}))
+            GroupInfo.Clear();
+            foreach (var groupI in Me.User.GroupUsers.OrderBy(t => t.GroupId))
             {
                 var group = await groupAPI.GetGroupAsync(groupI.GroupId);
-                Console.WriteLine($"{groupI.Index}: {group.GroupName}");
+                GroupInfo.Add(new GroupInfo(group));
             }
+        }
+
+        private async Task ListGroupAsync()
+        {
+            await InitGroupAsync();
+            foreach (var groupInfo in GroupInfo.Select((t, index) => new {t.Group.GroupName, Index = index}))
+                Console.WriteLine($"{groupInfo.Index}: {groupInfo.GroupName}");
+        }
+
+        private async Task GetGroupAsync(int groupNo)
+        {
+            var groupAPI = Global.APIBase.CreateGroupAPI();
+            GroupInfo[groupNo] = new GroupInfo(await groupAPI.GetGroupAsync(GroupInfo[groupNo].Group.GroupId));
+            Console.WriteLine($"GroupName: {GroupInfo[groupNo].Group.GroupName}");
+            Console.WriteLine(
+                $"GroupMember: {string.Join(", ", GroupInfo[groupNo].Users.Select(t => t.User.Username))}");
         }
 
         private async Task EnterGroupAsync(int inviteId, string inviteCode)
@@ -103,10 +137,10 @@ namespace EnigmaClientCli
             await ListGroupAsync();
         }
 
-        private async Task CreateInviteAsync(int groupId)
+        private async Task CreateInviteAsync(int groupNo)
         {
             var api = Global.APIBase.CreateGroupInviteLinkAPI();
-            var invite = await api.CreateGroupInviteLinkAPI().GetGroupInviteLinkAsync(groupId);
+            var invite = await api.CreateGroupInviteLinkAPI().GetGroupInviteLinkAsync(GroupInfo[groupNo].Group.GroupId);
             Console.WriteLine($"InviteId: {invite.GroupInviteLinkId} InviteCode: {invite.InviteCode}");
         }
 
@@ -119,6 +153,7 @@ namespace EnigmaClientCli
                 Console.WriteLine(string.Join(Environment.NewLine, validationResults));
                 return;
             }
+
             var api = Global.APIBase.CreateGroupAPI();
             await api.CreateGroupAsync(group);
             await ListGroupAsync();

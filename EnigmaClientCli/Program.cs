@@ -12,9 +12,11 @@ namespace EnigmaClientCli
 {
     class Program
     {
-        private static string KeyPath => "privateKey.json";
+        private static string KeyPath { get; set; } = "privateKey.json";
         static void Main(string[] args)
         {
+            if (args.Length > 0)
+                KeyPath = args[0];
             if (File.Exists(KeyPath))
             {
                 try

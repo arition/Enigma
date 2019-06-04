@@ -17,7 +17,9 @@ namespace EnigmaClientCli
         /// <param name="userId"></param>
         public UserInfo(int userId)
         {
-            //httpClient.GetStringAsync()
+            var api = Global.APIBase.CreateUserAPI();
+            User = api.GetUserAsync(userId).Result;
+            EncryptHelper = new EncryptHelper(User.PublicKey);
         }
 
         /// <summary>
@@ -27,6 +29,7 @@ namespace EnigmaClientCli
         public UserInfo(User user)
         {
             User = user;
+            EncryptHelper = new EncryptHelper(User.PublicKey);
         }
 
         public bool Equals(UserInfo other)

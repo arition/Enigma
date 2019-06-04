@@ -8,18 +8,28 @@ namespace EnigmaClientCli
 {
     public static class UserInfoFactory
     {
-        public static Dictionary<int,UserInfo> UserInfos { get; set; }
+        public static Dictionary<int,UserInfo> UserInfos { get; set; } = new Dictionary<int, UserInfo>();
 
         public static UserInfo Create(int userId)
         {
             if (!UserInfos.ContainsKey(userId))
             {
                 var userInfo = new UserInfo(userId);
-                userInfo.EncryptHelper = new EncryptHelper(userInfo.User.PublicKey);
                 UserInfos.Add(userInfo.User.UserId, userInfo);
             }
 
             return UserInfos[userId];
+        }
+
+        public static UserInfo Create(User user)
+        {
+            if (!UserInfos.ContainsKey(user.UserId))
+            {
+                var userInfo = new UserInfo(user);
+                UserInfos.Add(userInfo.User.UserId, userInfo);
+            }
+
+            return UserInfos[user.UserId];
         }
     }
 }
