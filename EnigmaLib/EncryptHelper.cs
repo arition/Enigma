@@ -26,6 +26,11 @@ namespace EnigmaLib
             AES?.Dispose();
         }
 
+        public async Task<EncryptedData> Encrypt<T>(T data)
+        {
+            return await Encrypt(JsonConvert.SerializeObject(data));
+        }
+
         public async Task<EncryptedData> Encrypt(string str)
         {
             return await Encrypt(Encoding.UTF8.GetBytes(str));

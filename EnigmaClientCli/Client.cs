@@ -17,6 +17,7 @@ namespace EnigmaClientCli
         {
             Console.WriteLine("Enigma Cli 1.0");
             Console.WriteLine("type 'help' to get all usable commands");
+            await InitMeAsync();
             await InitGroupAsync();
             await Loop();
         }
@@ -53,6 +54,7 @@ namespace EnigmaClientCli
                                         Console.WriteLine("Invalid Argument");
                                         return;
                                     }
+
                                     var groupNo = int.Parse(commandList[2]);
                                     await GetGroupAsync(groupNo);
                                     break;
@@ -62,6 +64,7 @@ namespace EnigmaClientCli
                                         Console.WriteLine("Invalid Argument");
                                         return;
                                     }
+
                                     var inviteId = int.Parse(commandList[2]);
                                     await EnterGroupAsync(inviteId, commandList[3]);
                                     break;
@@ -71,6 +74,7 @@ namespace EnigmaClientCli
                                         Console.WriteLine("Invalid Argument");
                                         return;
                                     }
+
                                     var groupId = int.Parse(commandList[2]);
                                     await CreateInviteAsync(groupId);
                                     break;
@@ -80,7 +84,21 @@ namespace EnigmaClientCli
                                         Console.WriteLine("Invalid Argument");
                                         return;
                                     }
+
                                     await CreateGroupAsync(new Group {GroupName = commandList[2]});
+                                    break;
+                                case string num when int.TryParse(num, out _):
+                                    var i = int.Parse(num);
+                                    if (commandList.Count > 2)
+                                    {
+                                        var text = string.Join(" ", commandList.Skip(2));
+                                        await SendMessagesAsync(i, new TextMessageContent {Text = text});
+                                    }
+                                    else
+                                    {
+                                        await GetMessagesAsync(i);
+                                    }
+
                                     break;
                             }
                         break;
@@ -114,6 +132,12 @@ namespace EnigmaClientCli
             }
         }
 
+        private async Task InitGroupAsync(int groupNo)
+        {
+            var groupAPI = Global.APIBase.CreateGroupAPI();
+            GroupInfo[groupNo] = new GroupInfo(await groupAPI.GetGroupAsync(GroupInfo[groupNo].Group.GroupId));
+        }
+
         private async Task ListGroupAsync()
         {
             await InitGroupAsync();
@@ -123,8 +147,7 @@ namespace EnigmaClientCli
 
         private async Task GetGroupAsync(int groupNo)
         {
-            var groupAPI = Global.APIBase.CreateGroupAPI();
-            GroupInfo[groupNo] = new GroupInfo(await groupAPI.GetGroupAsync(GroupInfo[groupNo].Group.GroupId));
+            await InitGroupAsync(groupNo);
             Console.WriteLine($"GroupName: {GroupInfo[groupNo].Group.GroupName}");
             Console.WriteLine(
                 $"GroupMember: {string.Join(", ", GroupInfo[groupNo].Users.Select(t => t.User.Username))}");
@@ -157,6 +180,38 @@ namespace EnigmaClientCli
             var api = Global.APIBase.CreateGroupAPI();
             await api.CreateGroupAsync(group);
             await ListGroupAsync();
+        }
+
+        private async Task GetMessagesAsync(int groupNo)
+        {
+            await InitGroupAsync(groupNo);
+            var api = Global.APIBase.CreateMessageAPI();
+            var msgs = await api.GetLatestMessageAsync(GroupInfo[groupNo].Group.GroupId);
+            var processedMsg = msgs.Select(msg =>
+            {
+                var textMsg = Me.DecryptHelper.Decrypt<TextMessageContent>(msg.EncryptedData).Result;
+                return $"{msg.FromUser.Username}\n{textMsg.SendTime.ToLocalTime():g}\n{textMsg.Text}\n";
+            });
+            Console.WriteLine(string.Join("\n", processedMsg));
+        }
+
+        private async Task SendMessagesAsync(int groupNo, TextMessageContent message)
+        {
+            await InitGroupAsync(groupNo);
+            var api = Global.APIBase.CreateMessageAPI();
+            foreach (var userInfo in GroupInfo[groupNo].Users)
+            {
+                var msg = new Message
+                {
+                    EncryptedData = await userInfo.EncryptHelper.Encrypt(message),
+                    FromUserId = Me.User.UserId,
+                    ToUserId = userInfo.User.UserId,
+                    GroupId = GroupInfo[groupNo].Group.GroupId
+                };
+                await api.PostMessageAsync(msg);
+            }
+
+            await GetMessagesAsync(groupNo);
         }
     }
 }

@@ -19,6 +19,11 @@ namespace EnigmaLib
         private RSA RSA { get; } = RSA.Create();
         private Aes AES { get; } = Aes.Create();
 
+        public async Task<T> Decrypt<T>(EncryptedData encryptedData)
+        {
+            return JsonConvert.DeserializeObject<T>(await DecryptToString(encryptedData));
+        }
+
         public async Task<string> DecryptToString(EncryptedData encryptedData)
         {
             using (var stream = await DecryptFromStream(encryptedData))

@@ -23,6 +23,19 @@ namespace EnigmaServer.Controllers
             _utils = utils;
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Message>> GetSingleMessage(int id)
+        {
+            var userId = _utils.GetUserId(User);
+            var message = await _context.Message
+                .Include(t => t.FromUser)
+                .Include(t => t.EncryptedData)
+                .Where(t => t.MessageId == id && t.ToUserId == userId)
+                .SingleOrDefaultAsync();
+
+            return message;
+        }
+
         /// <summary>
         ///     Get latest 20 messages
         ///     GET: api/Message/latest/5
@@ -33,8 +46,11 @@ namespace EnigmaServer.Controllers
         public async Task<ActionResult<List<Message>>> GetMessage(int groupId)
         {
             var userId = _utils.GetUserId(User);
-            var message = await _context.Message.Where(t => t.GroupId == groupId && t.ToUserId == userId)
-                .OrderByDescending(t => t.MessageId).Take(20).ToListAsync();
+            var message = await _context.Message
+                .Include(t => t.FromUser)
+                .Include(t => t.EncryptedData)
+                .Where(t => t.GroupId == groupId && t.ToUserId == userId)
+                .OrderByDescending(t => t.MessageId).Take(20).OrderBy(t => t.MessageId).ToListAsync();
 
             return message;
         }
@@ -51,8 +67,10 @@ namespace EnigmaServer.Controllers
         {
             var userId = _utils.GetUserId(User);
             var message = await _context.Message
+                .Include(t => t.FromUser)
+                .Include(t => t.EncryptedData)
                 .Where(t => t.GroupId == groupId && t.ToUserId == userId && t.MessageId < messageId)
-                .OrderByDescending(t => t.MessageId).Take(20).ToListAsync();
+                .OrderByDescending(t => t.MessageId).Take(20).OrderBy(t => t.MessageId).ToListAsync();
 
             return message;
         }
@@ -69,6 +87,8 @@ namespace EnigmaServer.Controllers
         {
             var userId = _utils.GetUserId(User);
             var message = await _context.Message
+                .Include(t => t.FromUser)
+                .Include(t => t.EncryptedData)
                 .Where(t => t.GroupId == groupId && t.ToUserId == userId && t.MessageId > messageId)
                 .OrderBy(t => t.MessageId).Take(20).ToListAsync();
 
@@ -82,7 +102,7 @@ namespace EnigmaServer.Controllers
             _context.Message.Add(message);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMessage", new {id = message.MessageId}, message);
+            return CreatedAtAction("GetSingleMessage", new {id = message.MessageId}, message);
         }
 
         private bool MessageExists(int id)
