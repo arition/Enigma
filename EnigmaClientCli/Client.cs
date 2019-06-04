@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using EnigmaLib.Model;
 
 namespace EnigmaClientCli
 {
@@ -22,6 +25,7 @@ namespace EnigmaClientCli
                 Console.Write("> ");
                 var input = Console.ReadLine();
                 await ParseCommandsAsync(input);
+                Console.Write("----------------------");
             }
         }
 
@@ -36,11 +40,13 @@ namespace EnigmaClientCli
                     case "g":
                     case "group":
                         if (commandList.Count == 1)
+                        {
                             await ListGroupAsync();
+                        }
                         else
                             switch (commandList[1])
                             {
-                                case "add":
+                                case "enter":
                                     if (commandList.Count != 4)
                                     {
                                         Console.WriteLine("Invalid Argument");
@@ -48,16 +54,24 @@ namespace EnigmaClientCli
                                     }
 
                                     var inviteId = int.Parse(commandList[2]);
-                                    await AddGroupAsync(inviteId, commandList[3]);
+                                    await EnterGroupAsync(inviteId, commandList[3]);
                                     break;
-                                case "invite":
+                                case "create-invite":
                                     if (commandList.Count != 3)
                                     {
                                         Console.WriteLine("Invalid Argument");
                                         return;
                                     }
-
                                     var groupId = int.Parse(commandList[2]);
+                                    await CreateInviteAsync(groupId);
+                                    break;
+                                case "create":
+                                    if (commandList.Count != 3)
+                                    {
+                                        Console.WriteLine("Invalid Argument");
+                                        return;
+                                    }
+                                    await CreateGroupAsync(new Group {GroupName = commandList[2]});
                                     break;
                             }
                         break;
@@ -82,7 +96,7 @@ namespace EnigmaClientCli
             }
         }
 
-        private async Task AddGroupAsync(int inviteId, string inviteCode)
+        private async Task EnterGroupAsync(int inviteId, string inviteCode)
         {
             var api = Global.APIBase.CreateGroupInviteLinkAPI();
             await api.EnterGroupInviteLinkAsync(inviteId, inviteCode);
@@ -94,6 +108,20 @@ namespace EnigmaClientCli
             var api = Global.APIBase.CreateGroupInviteLinkAPI();
             var invite = await api.CreateGroupInviteLinkAPI().GetGroupInviteLinkAsync(groupId);
             Console.WriteLine($"InviteId: {invite.GroupInviteLinkId} InviteCode: {invite.InviteCode}");
+        }
+
+        private async Task CreateGroupAsync(Group group)
+        {
+            var validationResults = new List<ValidationResult>();
+            if (!Validator.TryValidateObject(group, new ValidationContext(group), validationResults))
+            {
+                Console.WriteLine("Create Group Failed: ");
+                Console.WriteLine(string.Join(Environment.NewLine, validationResults));
+                return;
+            }
+            var api = Global.APIBase.CreateGroupAPI();
+            await api.CreateGroupAsync(group);
+            await ListGroupAsync();
         }
     }
 }

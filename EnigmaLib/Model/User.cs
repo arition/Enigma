@@ -30,7 +30,10 @@ namespace EnigmaLib.Model
             }
         }
 
-        [Required] [MaxLength(20)] public string Username { get; set; }
+        [Required]
+        [MinLength(1)]
+        [MaxLength(20)]
+        public string Username { get; set; }
 
         /// <summary>
         ///     For EF Database
