@@ -10,6 +10,7 @@ namespace EnigmaClientCli
 {
     public class Client
     {
+        //some functions in class client
         public UserInfo Me { get; set; }
         public List<GroupInfo> GroupInfo { get; set; } = new List<GroupInfo>();
 
@@ -21,7 +22,7 @@ namespace EnigmaClientCli
             await InitGroupAsync();
             await Loop();
         }
-
+        //basic UI and readin
         private async Task Loop()
         {
             while (true)
@@ -32,7 +33,7 @@ namespace EnigmaClientCli
                 Console.WriteLine("----------------------");
             }
         }
-
+        //handle the input and error report
         private async Task ParseCommandsAsync(string input)
         {
             var commandList = input.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -112,7 +113,7 @@ namespace EnigmaClientCli
                 Console.WriteLine(e);
             }
         }
-
+        //initiation of me and group
         private async Task InitMeAsync()
         {
             Me = new UserInfo(await Global.APIBase.CreateUserAPI().GetMeAsync());
@@ -159,7 +160,7 @@ namespace EnigmaClientCli
             await api.EnterGroupInviteLinkAsync(inviteId, inviteCode);
             await ListGroupAsync();
         }
-
+        //create and invite group
         private async Task CreateInviteAsync(int groupNo)
         {
             var api = Global.APIBase.CreateGroupInviteLinkAPI();
@@ -181,7 +182,7 @@ namespace EnigmaClientCli
             await api.CreateGroupAsync(group);
             await ListGroupAsync();
         }
-
+        //read messages in the group
         private async Task GetMessagesAsync(int groupNo)
         {
             await InitGroupAsync(groupNo);
@@ -194,7 +195,7 @@ namespace EnigmaClientCli
             });
             Console.WriteLine(string.Join("\n", processedMsg));
         }
-
+        //send messages in the group
         private async Task SendMessagesAsync(int groupNo, TextMessageContent message)
         {
             await InitGroupAsync(groupNo);
