@@ -2,14 +2,15 @@
 using System.Net.Http;
 using EnigmaLib;
 using EnigmaLib.Model;
+using Newtonsoft.Json;
 
 namespace EnigmaClientCli
 {
     public class UserInfo : IEquatable<UserInfo>
     {
         public User User { get; set; }
-        public EncryptHelper EncryptHelper { get; set; }
-        public DecryptHelper DecryptHelper { get; set; }
+        [JsonIgnore] public EncryptHelper EncryptHelper { get; set; }
+        [JsonIgnore] public DecryptHelper DecryptHelper { get; set; }
 
         /// <summary>
         /// Init User from API
@@ -30,6 +31,15 @@ namespace EnigmaClientCli
         {
             User = user;
             EncryptHelper = new EncryptHelper(User.PublicKey);
+        }
+
+        [JsonConstructor]
+        private UserInfo() { }
+
+        public void ReInit()
+        {
+            if (EncryptHelper == null)
+                EncryptHelper = new EncryptHelper(User.PublicKey);
         }
 
         public bool Equals(UserInfo other)

@@ -116,7 +116,7 @@ namespace EnigmaClientCli
         //initiation of me and group
         private async Task InitMeAsync()
         {
-            Me = new UserInfo(await Global.APIBase.CreateUserAPI().GetMeAsync());
+            Me = UserInfoFactory.Create(await Global.APIBase.CreateUserAPI().GetMeAsync());
             Me.DecryptHelper = Me.DecryptHelper ?? new DecryptHelper(Global.APIBase.PrivateKey);
         }
 
