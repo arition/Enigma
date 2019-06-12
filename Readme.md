@@ -18,7 +18,7 @@ All of the code are written by C# using .Net Core 2.2. .Net Core has a cross pla
 
 #### Server
 
-To start the server, just change your working directory into ```EnigmaServer``` and type ```dotnet run``` in the command line. The server will be listened at ```localhost:5000```.
+To start the server, just change your working directory into ```EnigmaServer``` and type ```dotnet run``` in the command line. The server will be listened at ```localhost:5000```. Database will be reset at each start. To avoid this behavior, add ```--environment=production``` parameter.
 
 #### Client
 
