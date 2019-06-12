@@ -13,6 +13,7 @@ namespace EnigmaTest
         private RSAParameters PublicRSAParameters { get; set; }
         private static Random Random { get; } = new Random();
 
+        //test for setup the RSA initialization
         [SetUp]
         public void Setup()
         {
@@ -21,6 +22,7 @@ namespace EnigmaTest
             PublicRSAParameters = rsa.ExportParameters(false);
         }
 
+        //test for setup the encryption environment
         [Test]
         public void Test()
         {
@@ -32,6 +34,7 @@ namespace EnigmaTest
             Assert.AreEqual(str, resultStr);
         }
 
+        //test for RSA parameter
         [Test]
         public void RSAParameterTest()
         {
