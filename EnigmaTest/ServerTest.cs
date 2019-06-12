@@ -111,6 +111,7 @@ namespace EnigmaTest
             response.EnsureSuccessStatusCode();
         }
 
+        //test for adding users to group
         [Test]
         public void TestAddUserToGroup()
         {
@@ -162,6 +163,7 @@ namespace EnigmaTest
             Console.WriteLine(response.Content.ReadAsStringAsync().Result);
         }
 
+        //test for authentication and identities
         [Test]
         public void TestAuth()
         {
