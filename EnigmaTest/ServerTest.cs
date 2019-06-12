@@ -21,7 +21,7 @@ namespace EnigmaTest
         private string EndPoint => "http://localhost:5000/";
         private string ServerPath => "../../../../EnigmaServer/";
         private HttpClient HttpClient => new HttpClient();
-
+        //test for init
         [OneTimeSetUp]
         public void InitServer()
         {
@@ -37,7 +37,7 @@ namespace EnigmaTest
             ServerProcess.Start();
             Thread.Sleep(2000);
         }
-
+        //test for shutting the server down
         [OneTimeTearDown]
         public void CleanUp()
         {
@@ -45,7 +45,8 @@ namespace EnigmaTest
             ServerProcess.Kill();
             ServerProcess.Close();
         }
-
+        
+        //test for adding users
         [TestCase("arition")]
         [TestCase("rev")]
         public void TestAddUser(string username, RSAParameters? publicRSAParameters = null)
@@ -88,7 +89,8 @@ namespace EnigmaTest
             var response = HttpClient.SendAsync(request).Result;
             return response.StatusCode;
         }
-
+        
+        //test for adding groups
         [Test]
         public void TestAddGroup()
         {
